@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Notes : MonoBehaviour
 {
-    private int _noteSpeed = 5;
+    private int _noteSpeed = 8;
     // Update is called once per frame
     void Update()
     {
