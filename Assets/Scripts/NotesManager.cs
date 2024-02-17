@@ -34,18 +34,23 @@ public class NotesManager : MonoBehaviour
     public List<int> LaneNum = new List<int>(); // どこのレーンに落ちるか
     public List<int> NoteType0 = new List<int>(); // どんなノーツか
     public List<float> NotesTime0 = new List<float>(); // ノーツと判定線が重なる瞬間
+    public List<float> NotesHoldTime0 = new List<float>(); // ホールドノーツ持続時間
     public List<GameObject> NotesObj0 = new List<GameObject>();
     public List<int> NoteType1 = new List<int>(); // どんなノーツか
     public List<float> NotesTime1 = new List<float>(); // ノーツと判定線が重なる瞬間
+    public List<float> NotesHoldTime1 = new List<float>(); // ホールドノーツ持続時間
     public List<GameObject> NotesObj1 = new List<GameObject>();
     public List<int> NoteType2 = new List<int>(); // どんなノーツか
     public List<float> NotesTime2 = new List<float>(); // ノーツと判定線が重なる瞬間
+    public List<float> NotesHoldTime2 = new List<float>(); // ホールドノーツ持続時間
     public List<GameObject> NotesObj2 = new List<GameObject>();
     public List<int> NoteType3 = new List<int>(); // どんなノーツか
     public List<float> NotesTime3 = new List<float>(); // ノーツと判定線が重なる瞬間
+    public List<float> NotesHoldTime3 = new List<float>(); // ホールドノーツ持続時間
     public List<GameObject> NotesObj3 = new List<GameObject>();
     public List<int> NoteType4 = new List<int>(); // どんなノーツか
     public List<float> NotesTime4 = new List<float>(); // ノーツと判定線が重なる瞬間
+    public List<float> NotesHoldTime4 = new List<float>(); // ホールドノーツ持続時間
     public List<GameObject> NotesObj4 = new List<GameObject>();
 
     [SerializeField] private float NotesSpeed;
@@ -86,36 +91,75 @@ public class NotesManager : MonoBehaviour
                 case 0:
                     NotesTime0.Add(time);
                     NoteType0.Add(inputJson.notes[i].type);
+                    if (inputJson.notes[i].type == 2)
+                    {
+                        float startTime = time;
+                        float endSectionDuration = 60f / (inputJson.BPM * (float)inputJson.notes[i].notes[0].LPB);
+                        float endBeatSec = sectionDuration * (float)inputJson.notes[i].notes[0].LPB;
+                        float endTime = (endBeatSec * inputJson.notes[i].notes[0].num / (float)inputJson.notes[i].notes[0].LPB) + inputJson.offset * 0.01f;
+                        NotesHoldTime0.Add(endTime - startTime);
+                        Debug.Log($"startTime: {startTime}");
+                        Debug.Log($"endTime: {endTime}");
+                        Debug.Log($"HoldTime: {endTime - startTime}");
+                    }
                     z = NotesTime0[index0] * NotesSpeed;
-                    NotesObj0.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.55f, z), Quaternion.identity));
+                    NotesObj0.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));
                     index0++;
                     break;
                 case 1:
                     NotesTime1.Add(time);
                     NoteType1.Add(inputJson.notes[i].type);
+                    if (inputJson.notes[i].type == 2)
+                    {
+                        float startTime = time;
+                        float endTime = (60f / (inputJson.BPM * inputJson.notes[i].notes[0].LPB))
+                            * inputJson.notes[i].notes[0].num / inputJson.notes[i].notes[0].LPB + inputJson.offset * 0.01f;
+                        NotesHoldTime1.Add(endTime - startTime);
+                    }
                     z = NotesTime1[index1] * NotesSpeed;
-                    NotesObj1.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.55f, z), Quaternion.identity));
+                    NotesObj1.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));
                     index1++;
                     break;
                 case 2:
                     NotesTime2.Add(time);
                     NoteType2.Add(inputJson.notes[i].type);
+                    if (inputJson.notes[i].type == 2)
+                    {
+                        float startTime = time;
+                        float endTime = (60f / (inputJson.BPM * inputJson.notes[i].notes[0].LPB))
+                            * inputJson.notes[i].notes[0].num / inputJson.notes[i].notes[0].LPB + inputJson.offset * 0.01f;
+                        NotesHoldTime2.Add(endTime - startTime);
+                    }
                     z = NotesTime2[index2] * NotesSpeed;
-                    NotesObj2.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.55f, z), Quaternion.identity));
+                    NotesObj2.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));
                     index2++;
                     break;
                 case 3:
                     NotesTime3.Add(time);
                     NoteType3.Add(inputJson.notes[i].type);
+                    if (inputJson.notes[i].type == 2)
+                    {
+                        float startTime = time;
+                        float endTime = (60f / (inputJson.BPM * inputJson.notes[i].notes[0].LPB))
+                            * inputJson.notes[i].notes[0].num / inputJson.notes[i].notes[0].LPB + inputJson.offset * 0.01f;
+                        NotesHoldTime3.Add(endTime - startTime);
+                    }
                     z = NotesTime3[index3] * NotesSpeed;
-                    NotesObj3.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.55f, z), Quaternion.identity));
+                    NotesObj3.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));
                     index3++;
                     break;
                 case 4:
                     NotesTime4.Add(time);
                     NoteType4.Add(inputJson.notes[i].type);
+                    if (inputJson.notes[i].type == 2)
+                    {
+                        float startTime = time;
+                        float endTime = (60f / (inputJson.BPM * inputJson.notes[i].notes[0].LPB))
+                            * inputJson.notes[i].notes[0].num / inputJson.notes[i].notes[0].LPB + inputJson.offset * 0.01f;
+                        NotesHoldTime4.Add(endTime - startTime);
+                    }
                     z = NotesTime4[index4] * NotesSpeed;
-                    NotesObj4.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.55f, z), Quaternion.identity));
+                    NotesObj4.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));
                     index4++;
                     break;
             }

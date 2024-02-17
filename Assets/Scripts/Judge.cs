@@ -29,6 +29,7 @@ public class Judge : MonoBehaviour
         if (GManager.instance.Start)
         {
             Debug.Log(notesManager.NotesTime0);
+            
             // Dキーの処理 (レーン0)
             if (Input.GetKeyDown(KeyCode.D))
             {
