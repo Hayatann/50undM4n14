@@ -41,12 +41,20 @@ public class Light : MonoBehaviour
         }
         if (num == 3)
         {
-            if (Input.GetKeyDown(KeyCode.J))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 ColorChange();
             }
         }
         if (num == 4)
+        {
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                ColorChange();
+            }
+        }
+
+        if (num == 5)
         {
             if (Input.GetKeyDown(KeyCode.K))
             {

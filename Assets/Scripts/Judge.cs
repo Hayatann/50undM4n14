@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Judge : MonoBehaviour
@@ -7,67 +9,125 @@ public class Judge : MonoBehaviour
     //変数の宣言
     [SerializeField] private GameObject[] MessageObj;//プレイヤーに判定を伝えるゲームオブジェクト
     [SerializeField] NotesManager notesManager;//スクリプト「notesManager」を入れる変数
+
+    [SerializeField] private TextMeshProUGUI comboText;
+
+    [SerializeField] private TextMeshProUGUI scoreText;
+
+    private AudioSource audio;
+
+    [SerializeField] private AudioClip hitSound;
     // Start is called before the first frame update
+    void Start()
+    {
+        audio = GetComponent<AudioSource>();
+    }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.D))//〇キーが押されたとき
+        if (GManager.instance.Start)
         {
-            if (notesManager.LaneNum[0] == 0)//押されたボタンはレーンの番号とあっているか？
+            Debug.Log(notesManager.NotesTime0);
+            // Dキーの処理 (レーン0)
+            if (Input.GetKeyDown(KeyCode.D))
             {
-                Judgement(GetABS(Time.time - notesManager.NotesTime[0]));
-                /*
-                本来ノーツをたたく場所と実際にたたいた場所がどれくらいずれているかを求め、
-                その絶対値をJudgement関数に送る
-                */
+                Judgement(GetABS(Time.time - (notesManager.NotesTime0[0] + GManager.instance.StartTime)), 0);
             }
-        }
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            if (notesManager.LaneNum[0] == 1)
-            {
-                Judgement(GetABS(Time.time - notesManager.NotesTime[0]));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            if (notesManager.LaneNum[0] == 2)
-            {
-                Judgement(GetABS(Time.time - notesManager.NotesTime[0]));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            if (notesManager.LaneNum[0] == 3)
-            {
-                Judgement(GetABS(Time.time - notesManager.NotesTime[0]));
-            }
-        }
 
-        if (Time.time > notesManager.NotesTime[0] + 0.16f)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-        {
-            message(3);
-            deleteData();
-            Debug.Log("Miss");
-            //ミス
+            // Fキーの処理 (レーン1)
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                Judgement(GetABS(Time.time - (notesManager.NotesTime1[0] + GManager.instance.StartTime)), 1);
+            }
+
+            // Spaceキーの処理 (レーン2)
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Judgement(GetABS(Time.time - (notesManager.NotesTime2[0] + GManager.instance.StartTime)), 2);
+            }
+
+            // Jキーの処理 (レーン3)
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                Judgement(GetABS(Time.time - (notesManager.NotesTime3[0] + GManager.instance.StartTime)), 3);
+            }
+
+            // Kキーの処理 (レーン4)
+            if (Input.GetKeyDown(KeyCode.K))
+            {
+                Judgement(GetABS(Time.time - (notesManager.NotesTime4[0] + GManager.instance.StartTime)), 4);
+            }
+
+            if (Time.time > notesManager.NotesTime0[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            {
+                message(3);
+                deleteData(0);
+                Debug.Log("Dust");
+                GManager.instance.dust++;
+                GManager.instance.combo = 0;
+                //ミス
+            }
+            if (Time.time > notesManager.NotesTime1[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            {
+                message(3);
+                deleteData(1);
+                Debug.Log("Dust");
+                GManager.instance.dust++;
+                GManager.instance.combo = 0;
+                //ミス
+            }
+            if (Time.time > notesManager.NotesTime2[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            {
+                message(3);
+                deleteData(2);
+                Debug.Log("Dust");
+                GManager.instance.dust++;
+                GManager.instance.combo = 0;
+                //ミス
+            }
+            if (Time.time > notesManager.NotesTime3[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            {
+                message(3);
+                deleteData(3);
+                Debug.Log("Dust");
+                GManager.instance.dust++;
+                GManager.instance.combo = 0;
+                //ミス
+            }
+            if (Time.time > notesManager.NotesTime4[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            {
+                message(3);
+                deleteData(4);
+                Debug.Log("Dust");
+                GManager.instance.dust++;
+                GManager.instance.combo = 0;
+                //ミス
+            }
         }
     }
-    void Judgement(float timeLag)
+    void Judgement(float timeLag, int laneNum)
     {
+        // audio.PlayOneShot(hitSound);
         if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が50ms以下だったら
         {
-            Debug.Log("Perfect");
+            Debug.Log("Stellar Crystal");
             message(0);
-            deleteData();
+            GManager.instance.ratioScore += 5;
+            GManager.instance.stellar_crystal++;
+            GManager.instance.combo++;
+            deleteData(laneNum);
         }
         else
         {
             if (timeLag <= 0.08)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が80ms以下だったら
             {
-                Debug.Log("Great");
+                Debug.Log("Stellar");
                 message(1);
-                deleteData();
+                GManager.instance.ratioScore += 3;
+                GManager.instance.stellar++;
+                GManager.instance.combo++;
+                deleteData(laneNum);
             }
             else
             {
@@ -75,7 +135,10 @@ public class Judge : MonoBehaviour
                 {
                     Debug.Log("Bad");
                     message(2);
-                    deleteData();
+                    GManager.instance.ratioScore += 1;
+                    GManager.instance.bad++;
+                    GManager.instance.combo++;
+                    deleteData(laneNum);
                 }
             }
         }
@@ -91,11 +154,47 @@ public class Judge : MonoBehaviour
             return -num;
         }
     }
-    void deleteData()//すでにたたいたノーツを削除する関数
+
+    void deleteData(int laneNum)//すでにたたいたノーツを削除する関数
     {
-        notesManager.NotesTime.RemoveAt(0);
+        switch (laneNum)
+        {
+            case 0:
+                Destroy(notesManager.NotesObj0[0]);
+                notesManager.NotesTime0.RemoveAt(0);
+                notesManager.NoteType0.RemoveAt(0);
+                notesManager.NotesObj0.RemoveAt(0);
+                break;
+            case 1:
+                Destroy(notesManager.NotesObj1[0]);
+                notesManager.NotesTime1.RemoveAt(0);
+                notesManager.NoteType1.RemoveAt(0);
+                notesManager.NotesObj1.RemoveAt(0);
+                break;
+            case 2:
+                Destroy(notesManager.NotesObj2[0]);
+                notesManager.NotesTime2.RemoveAt(0);
+                notesManager.NoteType2.RemoveAt(0);
+                notesManager.NotesObj2.RemoveAt(0);
+                break;
+            case 3:
+                Destroy(notesManager.NotesObj3[0]);
+                notesManager.NotesTime3.RemoveAt(0);
+                notesManager.NoteType3.RemoveAt(0);
+                notesManager.NotesObj3.RemoveAt(0);
+                break;
+            case 4:
+                Destroy(notesManager.NotesObj4[0]);
+                notesManager.NotesTime4.RemoveAt(0);
+                notesManager.NoteType4.RemoveAt(0);
+                notesManager.NotesObj4.RemoveAt(0);
+                break;
+        }
         notesManager.LaneNum.RemoveAt(0);
-        notesManager.NoteType.RemoveAt(0);
+        GManager.instance.score = (int)Math.Round(1000000 *
+            Math.Floor(GManager.instance.ratioScore / GManager.instance.maxScore * 1000000) / 1000000);
+        comboText.text = GManager.instance.combo.ToString();
+        scoreText.text = GManager.instance.score.ToString();
     }
 
     void message(int judge)//判定を表示する
