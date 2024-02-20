@@ -15,12 +15,19 @@ public class Judge : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
 
     private AudioSource audio;
+    public AudioClip hitSoundStellarCrystal;
+    public AudioClip hitSoundStellar;
+    public AudioClip hitSoundBad;
+    int soundIndex = -1;
 
-    [SerializeField] private AudioClip hitSound;
-    // Start is called before the first frame update
-    void Start()
-    {
-        audio = GetComponent<AudioSource>();
+    [SerializeField] AudioClip[] hitSounds;
+  // Start is called before the first frame update
+  void Start()
+  {
+    audio = GetComponent<AudioSource>();
+
+    hitSounds = new AudioClip[] { hitSoundStellarCrystal, hitSoundStellar, hitSoundBad };
+
     }
 
     // Update is called once per frame
@@ -28,8 +35,6 @@ public class Judge : MonoBehaviour
     {
         if (GManager.instance.Start)
         {
-            Debug.Log(notesManager.NotesTime0);
-            
             // Dキーの処理 (レーン0)
             if (Input.GetKeyDown(KeyCode.D))
             {
@@ -69,81 +74,51 @@ public class Judge : MonoBehaviour
                 GManager.instance.combo = 0;
                 //ミス
             }
-            if (Time.time > notesManager.NotesTime1[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-            {
-                message(3);
-                deleteData(1);
-                Debug.Log("Dust");
-                GManager.instance.dust++;
-                GManager.instance.combo = 0;
-                //ミス
-            }
-            if (Time.time > notesManager.NotesTime2[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-            {
-                message(3);
-                deleteData(2);
-                Debug.Log("Dust");
-                GManager.instance.dust++;
-                GManager.instance.combo = 0;
-                //ミス
-            }
-            if (Time.time > notesManager.NotesTime3[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-            {
-                message(3);
-                deleteData(3);
-                Debug.Log("Dust");
-                GManager.instance.dust++;
-                GManager.instance.combo = 0;
-                //ミス
-            }
-            if (Time.time > notesManager.NotesTime4[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-            {
-                message(3);
-                deleteData(4);
-                Debug.Log("Dust");
-                GManager.instance.dust++;
-                GManager.instance.combo = 0;
-                //ミス
-            }
         }
     }
-    void Judgement(float timeLag, int laneNum)
+  void Judgement(float timeLag, int laneNum)
+  {
+    soundIndex = -1;
+    if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が50ms以下だったら
     {
-        // audio.PlayOneShot(hitSound);
-        if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が50ms以下だったら
-        {
-            Debug.Log("Stellar Crystal");
-            message(0);
-            GManager.instance.ratioScore += 5;
-            GManager.instance.stellar_crystal++;
-            GManager.instance.combo++;
-            deleteData(laneNum);
-        }
-        else
-        {
-            if (timeLag <= 0.08)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が80ms以下だったら
-            {
-                Debug.Log("Stellar");
-                message(1);
-                GManager.instance.ratioScore += 3;
-                GManager.instance.stellar++;
-                GManager.instance.combo++;
-                deleteData(laneNum);
-            }
-            else
-            {
-                if (timeLag <= 0.12)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が120ms以下だったら
-                {
-                    Debug.Log("Bad");
-                    message(2);
-                    GManager.instance.ratioScore += 1;
-                    GManager.instance.bad++;
-                    GManager.instance.combo++;
-                    deleteData(laneNum);
-                }
-            }
-        }
+      soundIndex = 0;
+      Debug.Log("Stellar Crystal");
+      message(0);
+      GManager.instance.ratioScore += 5;
+      GManager.instance.stellar_crystal++;
+      GManager.instance.combo++;
+      deleteData(laneNum);
     }
+    else if (timeLag <= 0.08)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が80ms以下だったら
+      {
+        soundIndex = 1;
+        Debug.Log("Stellar");
+        message(1);
+        GManager.instance.ratioScore += 3;
+        GManager.instance.stellar++;
+        GManager.instance.combo++;
+        deleteData(laneNum);
+      }
+      else if (timeLag <= 0.12)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が120ms以下だったら
+        {
+          soundIndex = 2;
+          Debug.Log("Bad");
+          message(2);
+          GManager.instance.ratioScore += 1;
+          GManager.instance.bad++;
+          GManager.instance.combo++;
+          deleteData(laneNum);
+        }
+    if (soundIndex != -1 && hitSounds[soundIndex] != null)
+    {
+      audio.clip = hitSounds[soundIndex];
+      audio.Play();
+    }
+    else
+    {
+      Debug.Log("No sound found for index " + soundIndex);
+    }
+}
     float GetABS(float num)//引数の絶対値を返す関数
     {
         if (num >= 0)

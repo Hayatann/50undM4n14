@@ -121,8 +121,8 @@ public class NotesManager : MonoBehaviour
                         Debug.Log($"startTime: {startTime}");
                         Debug.Log($"endTime: {endTime}");
                         Debug.Log($"HoldTime: {endTime - startTime}");
-                        ScaleAround(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, NotesTime0[index0] * NotesSpeed),
-                            Quaternion.identity), new Vector3(0, 0, -0.175f), new Vector3(1, 0.01f, 4));
+                        // ScaleAround(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, NotesTime0[index0] * NotesSpeed),
+                        //     Quaternion.identity), new Vector3(0, 0, -0.175f), new Vector3(1, 0.01f, 4));
                     }
                     z = NotesTime0[index0] * NotesSpeed;
                     NotesObj0.Add(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, z), Quaternion.identity));

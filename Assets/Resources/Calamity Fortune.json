@@ -2,7 +2,7 @@
   "name": "Calamity Fortune",
   "maxBlock": 5,
   "BPM": 200,
-  "offset": 45,
+  "offset": 30,
   "notes": [
     {
       "LPB": 4,
