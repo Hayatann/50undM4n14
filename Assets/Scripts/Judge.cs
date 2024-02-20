@@ -14,7 +14,7 @@ public class Judge : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI scoreText;
 
-    private AudioSource audio;
+    private AudioSource audioSource;
     public AudioClip hitSoundStellarCrystal;
     public AudioClip hitSoundStellar;
     public AudioClip hitSoundBad;
@@ -24,7 +24,7 @@ public class Judge : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    audio = GetComponent<AudioSource>();
+    audioSource = GetComponent<AudioSource>();
 
     hitSounds = new AudioClip[] { hitSoundStellarCrystal, hitSoundStellar, hitSoundBad };
 
@@ -35,45 +35,84 @@ public class Judge : MonoBehaviour
     {
         if (GManager.instance.Start)
         {
-            // Dキーの処理 (レーン0)
-            if (Input.GetKeyDown(KeyCode.D))
+            CheckInputAndJudge(KeyCode.D, notesManager.NotesTime0, 0);
+            CheckInputAndJudge(KeyCode.F, notesManager.NotesTime1, 1);
+            CheckInputAndJudge(KeyCode.Space, notesManager.NotesTime2, 2);
+            CheckInputAndJudge(KeyCode.J, notesManager.NotesTime3, 3);
+            CheckInputAndJudge(KeyCode.K, notesManager.NotesTime4, 4);
+            // if (Time.time > notesTimes[i] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
+            // {
+            //     message(3);
+            //     deleteData(laneNum);
+            //     GManager.instance.dust++;
+            //     GManager.instance.combo = 0;
+            //     //ミス
+            // }
+            CheckForMissedNotes(notesManager.NotesTime0, 0);
+            CheckForMissedNotes(notesManager.NotesTime1, 1);
+            CheckForMissedNotes(notesManager.NotesTime2, 2);
+            CheckForMissedNotes(notesManager.NotesTime3, 3);
+            CheckForMissedNotes(notesManager.NotesTime4, 4);
+        }
+    }
+    void CheckInputAndJudge(KeyCode key, List<float> notesTimes, int laneNum)
+    {
+        if (Input.GetKeyDown(key))
+        {
+            for (int i = 0; i < notesTimes.Count; i++)
             {
-                Judgement(GetABS(Time.time - (notesManager.NotesTime0[0] + GManager.instance.StartTime)), 0);
+                soundIndex = -1;
+                float timeLag = GetABS(Time.time - (notesTimes[i] + GManager.instance.StartTime));
+                if (timeLag <= 0.05) // SomeThresholdは判定の閾値
+                {
+                    soundIndex = 0;
+                    message(0);
+                    GManager.instance.ratioScore += 5;
+                    GManager.instance.stellar_crystal++;
+                    GManager.instance.combo++;
+                    audioSource.clip = hitSounds[0];
+                    audioSource.Play();
+                    deleteData(laneNum);
+                    // ここでノーツを削除するロジックを追加
+                    break; // 最も近いノーツに対して判定を行ったらループを抜ける
+                }
+                else if (timeLag <= 0.08)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が80ms以下だったら
+                {
+                    soundIndex = 1;
+                    message(1);
+                    GManager.instance.ratioScore += 3;
+                    GManager.instance.stellar++;
+                    GManager.instance.combo++;
+                    audioSource.clip = hitSounds[1];
+                    audioSource.Play();
+                    deleteData(laneNum);
+                    break; // 最も近いノーツに対して判定を行ったらループを抜ける
+                }
+                else if (timeLag <= 0.12)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が120ms以下だったら
+                {
+                    soundIndex = 2;
+                    message(2);
+                    GManager.instance.ratioScore += 1;
+                    GManager.instance.bad++;
+                    GManager.instance.combo++;
+                    audioSource.clip = hitSounds[2];
+                    audioSource.Play();
+                    deleteData(laneNum);
+                    break; // 最も近いノーツに対して判定を行ったらループを抜ける
+                }
             }
-
-            // Fキーの処理 (レーン1)
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                Judgement(GetABS(Time.time - (notesManager.NotesTime1[0] + GManager.instance.StartTime)), 1);
-            }
-
-            // Spaceキーの処理 (レーン2)
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Judgement(GetABS(Time.time - (notesManager.NotesTime2[0] + GManager.instance.StartTime)), 2);
-            }
-
-            // Jキーの処理 (レーン3)
-            if (Input.GetKeyDown(KeyCode.J))
-            {
-                Judgement(GetABS(Time.time - (notesManager.NotesTime3[0] + GManager.instance.StartTime)), 3);
-            }
-
-            // Kキーの処理 (レーン4)
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                Judgement(GetABS(Time.time - (notesManager.NotesTime4[0] + GManager.instance.StartTime)), 4);
-            }
-
-            if (Time.time > notesManager.NotesTime0[0] + 0.16f + GManager.instance.StartTime)//本来ノーツをたたくべき時間から160msたっても入力がなかった場合
-            {
-                message(3);
-                deleteData(0);
-                Debug.Log("Dust");
-                GManager.instance.dust++;
-                GManager.instance.combo = 0;
-                //ミス
-            }
+        }
+    }
+    void CheckForMissedNotes(List<float> notesTimes, int laneNum)
+    {
+        while (notesTimes.Count > 0 && Time.time > notesTimes[0] + GManager.instance.StartTime + 0.16f)
+        {
+            // 最初のノーツが見逃された場合、ミスとして処理
+            message(3); // ミスのメッセージを表示（message関数を適宜調整してください）
+            deleteData(laneNum);
+            GManager.instance.dust++;
+            GManager.instance.combo = 0;
+            // コンボをリセット
         }
     }
   void Judgement(float timeLag, int laneNum)
@@ -82,7 +121,6 @@ public class Judge : MonoBehaviour
     if (timeLag <= 0.05)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が50ms以下だったら
     {
       soundIndex = 0;
-      Debug.Log("Stellar Crystal");
       message(0);
       GManager.instance.ratioScore += 5;
       GManager.instance.stellar_crystal++;
@@ -92,7 +130,6 @@ public class Judge : MonoBehaviour
     else if (timeLag <= 0.08)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が80ms以下だったら
       {
         soundIndex = 1;
-        Debug.Log("Stellar");
         message(1);
         GManager.instance.ratioScore += 3;
         GManager.instance.stellar++;
@@ -102,21 +139,19 @@ public class Judge : MonoBehaviour
       else if (timeLag <= 0.12)//本来ノーツをたたくべき時間と実際にノーツをたたいた時間の誤差が120ms以下だったら
         {
           soundIndex = 2;
-          Debug.Log("Bad");
           message(2);
           GManager.instance.ratioScore += 1;
           GManager.instance.bad++;
           GManager.instance.combo++;
           deleteData(laneNum);
         }
-    if (soundIndex != -1 && hitSounds[soundIndex] != null)
+    if (soundIndex != -1)
     {
-      audio.clip = hitSounds[soundIndex];
-      audio.Play();
+      audioSource.clip = hitSounds[soundIndex];
+      audioSource.Play();
     }
     else
     {
-      Debug.Log("No sound found for index " + soundIndex);
     }
 }
     float GetABS(float num)//引数の絶対値を返す関数

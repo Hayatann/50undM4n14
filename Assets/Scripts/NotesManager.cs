@@ -118,9 +118,7 @@ public class NotesManager : MonoBehaviour
                         float endBeatSec = endSectionDuration * (float)inputJson.notes[i].notes[0].LPB;
                         float endTime = (endBeatSec * inputJson.notes[i].notes[0].num / (float)inputJson.notes[i].notes[0].LPB) + inputJson.offset * 0.01f;
                         NotesHoldTime0.Add(endTime - startTime);
-                        Debug.Log($"startTime: {startTime}");
-                        Debug.Log($"endTime: {endTime}");
-                        Debug.Log($"HoldTime: {endTime - startTime}");
+                        // Debug.Log($"HoldTime: {endTime - startTime}");
                         // ScaleAround(Instantiate(tapNoteObj, new Vector3(inputJson.notes[i].block - 1.0f, 0.5f, NotesTime0[index0] * NotesSpeed),
                         //     Quaternion.identity), new Vector3(0, 0, -0.175f), new Vector3(1, 0.01f, 4));
                     }
